@@ -4,11 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace InterpolacjaNewtona
+namespace InterpolacjaNewton
 {
     class Program
     {
-        class Point
+        class Point  
         {
             public double X;
             public double Y;
@@ -18,35 +18,56 @@ namespace InterpolacjaNewtona
                 Y = y;
             }
         }
-
-        static double[] b;
-        static double[] x_k;
-        static double[] x;
+        static List<Point> cosList = new List<Point>();
+        static int stopien;
+        static double wartoscSzukana = 1.05;
         static void Main(string[] args)
         {
-            b = new double[10];
-            
-            x = new double[10];
-            x_k = new double[10];
-
-            CalcElements(x, 10, 10);
-        }
-
-        static void CalcElements(double[] x, int order, int step)
-        {
-            int i;
-            double[] xx;
-            if (order >= 1)
+            cosList.Add(new Point(1, Math.Cos(1)));
+            stopien = 1;
+            for (double i = 1.1; i <= 2.1; i += 0.1)
             {
-                xx = new double[order];
-                for (i = 0; i < order - 1; i++)
-                {
-                    xx[i] = (x[i + 1] - x[i]) / (x_k[i + step] - x_k[i]);
-                }
-                b[step - 1] = x[0];
-                CalcElements(xx, order - 1, step + 1);
+                cosList.Add(new Point(i, Math.Cos(i)));
+                Console.WriteLine(calculateNewton() + " Newton stopnia " + stopien);
+                stopien += 1;
             }
 
+            Console.ReadLine();
+        }
+
+
+        static double calculateNewton()
+        {
+            List<Point> tempCos = new List<Point>();
+
+            foreach (Point p in cosList)
+            {
+                tempCos.Add(new Point(p.X, p.Y));
+            }
+
+            for(int i = 0; i < stopien - 1; i++)
+            {
+                for(int j = stopien - 1; j > i; j--)
+                {
+                    tempCos[j].Y = (tempCos[j].Y - tempCos[j - 1].Y) / (tempCos[j].X - tempCos[j - i - 1].X);
+                }
+            }
+
+            double mult;
+            double sum = 0;
+            for(int i = stopien - 1; i >= 0; i--)
+            {
+                mult = 1;
+                for(int j = 0; j < i; j++)
+                {
+                    mult *= (wartoscSzukana - tempCos[j].X);
+                }
+
+                mult *= tempCos[i].Y;
+                sum += mult;
+            }
+
+            return sum;
         }
     }
 }
